@@ -47,7 +47,7 @@ show(ax[0, 1], gz, "(b) good chip: Bz from the four NV orientations", vmax=vm)
 hx, hy = segments.hilbert_inplane(gz, dx * 1e-6); vmx = np.hypot(tx, ty).max() * 1e6
 show(ax[0, 2], np.hypot(gx, gy), "(c) good chip: in-plane |B| measured by the four orientations", cmap="magma", vmax=vmx)
 show(ax[1, 0], oz, "(d) open via: Bz, net A's current is gone", vmax=vm)
-show(ax[1, 1], np.hypot(hx, hy), "(e) good chip: in-plane |B| computed from Bz alone (eq. 6)", cmap="magma", vmax=vmx)
+show(ax[1, 1], np.hypot(hx, hy), "(e) good chip: in-plane |B| computed from Bz alone (eq. 7)", cmap="magma", vmax=vmx)
 a = ax[1, 2]
 res = {}
 for lab, (bxm, bym, bzm) in (("good", (gx, gy, gz)), ("open via", (ox, oy, oz))):
