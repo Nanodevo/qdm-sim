@@ -20,9 +20,13 @@ qdm.optics    diffraction, wire response, the stand-off as a low-pass filter
 qdm.current   sheet currents -> Bz at the NV plane (Fourier Biot-Savart, Roth 1989)
               -> current map back from Bz with a windowed inversion; two layers at known
               depths (spectral split, layout-constrained alternation, template fit of net currents)
+qdm.rays      Monte Carlo ray tracing of the collection (flat face, mirrored back, solid immersion
+              lens, Fresnel and TIR) and of the illumination beam's refraction into the diamond
 qdm.segments  3D current paths with vias (closed-form Biot-Savart per segment), the field vector
               as the four NV orientations measure it, net-current fit to the vector map
-scripts/figs.py   figures 1-4; figs_material.py 5-6; fig_two_layer.py 7; fig_vector.py 8; export_sim.py the data of the interactive page
+scripts/figs.py   figures 1-4; figs_material.py 5-6; fig_two_layer.py 7; fig_vector.py 8; fig_rays.py 9;
+                  optiland_imaging.py 10 (the imaging path in optiland, an open-source sequential ray tracer);
+                  export_sim.py the data of the interactive page
 tests/            checks: Zeeman splitting, eight lines, collection numbers, wire peaks,
                   Fourier forward against direct Biot-Savart, forward-inverse round trip
 ```

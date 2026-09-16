@@ -3,7 +3,7 @@ name = "qdm"
 version = "0.1.0"
 description = "System model of a widefield quantum diamond microscope: NV spin physics, photon collection, sensitivity, resolution, and current-map reconstruction from the field of a chip."
 requires-python = ">=3.11"
-dependencies = ["numpy", "scipy", "matplotlib"]
+dependencies = ["numpy", "scipy", "matplotlib", "optiland"]
 
 [tool.setuptools]
 packages = ["qdm"]
