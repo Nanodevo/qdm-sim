@@ -18,8 +18,11 @@ qdm.material  nitrogen content, irradiation dose, isotopes, strain and surface t
 qdm.protocols CW (power-broadened), pulsed ODMR and Ramsey sensitivities with duty cycle (Barry 2020)
 qdm.optics    diffraction, wire response, the stand-off as a low-pass filter
 qdm.current   sheet currents -> Bz at the NV plane (Fourier Biot-Savart, Roth 1989)
-              -> current map back from Bz with a windowed inversion
-scripts/figs.py   figures 1-4 of the study; scripts/figs_material.py figures 5-6
+              -> current map back from Bz with a windowed inversion; two layers at known
+              depths (spectral split, layout-constrained alternation, template fit of net currents)
+qdm.segments  3D current paths with vias (closed-form Biot-Savart per segment), the field vector
+              as the four NV orientations measure it, net-current fit to the vector map
+scripts/figs.py   figures 1-4; figs_material.py 5-6; fig_two_layer.py 7; fig_vector.py 8; export_sim.py the data of the interactive page
 tests/            checks: Zeeman splitting, eight lines, collection numbers, wire peaks,
                   Fourier forward against direct Biot-Savart, forward-inverse round trip
 ```

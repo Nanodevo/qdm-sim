@@ -78,3 +78,21 @@ def test_two_layer_inversion_separates_known_depths():
     in1 = g1 > 0.5 * g1.max(); in2 = g2 > 0.5 * g2.max()
     i1, i2 = current.loop_current_a(r1, in1), current.loop_current_a(r2, in2)
     assert abs(i1 - 20e-6) < 6e-6 and abs(i2 - 60e-6) < 15e-6
+
+
+def test_vertical_segment_has_no_bz_and_vector_recovers_projections():
+    from qdm import segments
+    X, Y = np.meshgrid(np.linspace(-5e-6, 5e-6, 41), np.linspace(-5e-6, 5e-6, 41))
+    bx, by, bz = segments.segment_field((0, 0, -4e-6), (0, 0, -1e-6), 1e-3, X, Y, 0.0)
+    assert np.abs(bz).max() < 1e-12 * np.abs(bx).max() + 1e-18
+    assert np.abs(bx).max() > 1e-6                              # the in-plane field is there
+    p = segments.projections(bx, by, bz)
+    rx, ry, rz = segments.vector_from_projections(p)
+    assert np.allclose(rx, bx) and np.allclose(ry, by) and np.allclose(rz, bz, atol=1e-15)
+
+
+def test_long_wire_limit():
+    from qdm import segments
+    X, Y = np.meshgrid(np.array([0.0]), np.array([2e-6]))
+    bx, by, bz = segments.segment_field((-1.0, 0, 0), (1.0, 0, 0), 1e-3, X, Y, 0.0)   # 2 m wire, 2 um away
+    assert abs(bz[0, 0] - 4e-7 * np.pi * 1e-3 / (2 * np.pi * 2e-6)) / (4e-7 * np.pi * 1e-3 / (2 * np.pi * 2e-6)) < 1e-6
