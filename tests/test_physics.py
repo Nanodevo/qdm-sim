@@ -63,3 +63,18 @@ def test_protocol_relations():
     # pulsed ODMR pays a readout duty cycle; it beats CW when the readout window is a fair share of the cycle
     assert protocols.eta_pulsed_odmr(1e6, 10e-6, 0.02, t_read_s=5e-6, t_init_s=1e-6) < protocols.eta_cw(1e6, 1 / (np.pi * 10e-6), 0.02)
     assert protocols.eta_pulsed_odmr(1e6, 10e-6, 0.02, t_read_s=0.3e-6, t_init_s=2e-6) > protocols.eta_cw(1e6, 1 / (np.pi * 10e-6), 0.02)
+
+
+def test_two_layer_inversion_separates_known_depths():
+    n, dx = 128, 0.5
+    x, y = current.grid(n, dx)
+    g1 = current.rounded_rect_stream(x, y, -6, -4, 13, 8, 20e-6, 0.5)
+    g2 = current.rounded_rect_stream(x, y, 7, 6, 17, 12, 60e-6, 0.5)
+    bz = current.bz_from_sheet(*current.currents_from_stream(g1, dx), dx, 1.0) + current.bz_from_sheet(*current.currents_from_stream(g2, dx), dx, 4.0)
+    rng = np.random.default_rng(1)
+    bz_n = bz + rng.normal(0, 0.22e-6, bz.shape)
+    masks = (current.layout_mask(g1, dx), current.layout_mask(g2, dx))
+    (_, _), (_, _), (r1, r2) = current.reconstruct_two_layers(bz_n, dx, 1.0, 4.0, snr=15, masks=masks)
+    in1 = g1 > 0.5 * g1.max(); in2 = g2 > 0.5 * g2.max()
+    i1, i2 = current.loop_current_a(r1, in1), current.loop_current_a(r2, in2)
+    assert abs(i1 - 20e-6) < 6e-6 and abs(i2 - 60e-6) < 15e-6

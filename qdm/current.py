@@ -98,3 +98,92 @@ def rms_error(j_rec, j_true):
     m = np.hypot(*j_true)
     r = np.hypot(*j_rec)
     return float(np.sqrt(np.mean((r - m) ** 2)) / np.sqrt(np.mean(m ** 2)))
+
+
+# ---------------------------------------------------------------- two layers at known depths
+def stream_from_bz(bz_t, dx_um, d_um, k_cut_per_um):
+    """Single-layer windowed inversion, returned as the stream function (amperes)."""
+    n = bz_t.shape[0]
+    dx = dx_um * 1e-6
+    d = d_um * 1e-6
+    kx, ky, k = _kgrid(n, dx)
+    B = np.fft.fft2(bz_t)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        G = 2 * B * np.exp(k * d) / (MU0 * k) * hanning_window(k, k_cut_per_um * 1e6)
+    G[k == 0] = 0.0
+    return np.real(np.fft.ifft2(G))
+
+
+def _forward_stream(g_a, dx_um, d_um):
+    jx, jy = currents_from_stream(g_a, dx_um)
+    return bz_from_sheet(jx, jy, dx_um, d_um)
+
+
+def _tikhonov_pair(bz_t, dx_um, d1_um, d2_um, lam1, lam2):
+    """Per spatial frequency, the least-squares split of Bz between two current sheets at known
+    depths, each with its own gradient penalty: minimise |B - a1 g1 - a2 g2|^2 + k^2 (lam1 |g1|^2 + lam2 |g2|^2),
+    a_i = (mu0/2) k exp(-k d_i). High spatial frequencies can only come from the shallow layer;
+    low ones are shared according to the penalties, which is the residual ambiguity."""
+    n = bz_t.shape[0]
+    kx, ky, k = _kgrid(n, dx_um * 1e-6)
+    B = np.fft.fft2(bz_t)
+    a1 = (MU0 / 2) * k * np.exp(-k * d1_um * 1e-6)
+    a2 = (MU0 / 2) * k * np.exp(-k * d2_um * 1e-6)
+    r1, r2 = lam1 * k ** 2, lam2 * k ** 2
+    det = (a1 ** 2 + r1) * (a2 ** 2 + r2) - (a1 * a2) ** 2
+    with np.errstate(divide="ignore", invalid="ignore"):
+        g1 = ((a2 ** 2 + r2) * a1 * B - a1 * a2 * a2 * B) / det
+        g2 = ((a1 ** 2 + r1) * a2 * B - a1 * a2 * a1 * B) / det
+    g1[k == 0] = 0.0; g2[k == 0] = 0.0
+    return np.real(np.fft.ifft2(g1)), np.real(np.fft.ifft2(g2))
+
+
+def reconstruct_two_layers(bz_t, dx_um, d1_um, d2_um, snr: float, masks=None, n_iter: int = 30):
+    """Two current layers at known depths from one Bz map.
+
+    Without masks: a spectral least-squares split with a per-layer penalty tuned so that each
+    layer's cut-off sits where the depth amplification of the noise reaches the signal. With
+    masks (one boolean array per layer marking where that metal level has wires, i.e. the layout):
+    alternating single-layer inversions, each layer solved from the residual left by the other
+    and clipped to its allowed region. Because the two levels do not occupy the same places, the
+    low-frequency ambiguity of the spectral split disappears."""
+    lsnr = max(np.log(max(snr, 1.5)), 1.0)
+    kc1, kc2 = lsnr / d1_um, lsnr / d2_um
+    if masks is not None:
+        kc1, kc2 = 2 * kc1, 2 * kc2          # the layout regularises; the window can open further
+    if masks is None:
+        lam1 = ((MU0 / 2) * np.exp(-kc1 * d1_um)) ** 2
+        lam2 = ((MU0 / 2) * np.exp(-kc2 * d2_um)) ** 2
+        g1, g2 = _tikhonov_pair(bz_t, dx_um, d1_um, d2_um, lam1, lam2)
+    else:
+        m1, m2 = masks
+        g1 = stream_from_bz(bz_t, dx_um, d1_um, kc1) * m1
+        g2 = np.zeros_like(bz_t)
+        for _ in range(n_iter):
+            g2 = stream_from_bz(bz_t - _forward_stream(g1, dx_um, d1_um), dx_um, d2_um, kc2) * m2
+            g1 = stream_from_bz(bz_t - _forward_stream(g2, dx_um, d2_um), dx_um, d1_um, kc1) * m1
+    return currents_from_stream(g1, dx_um), currents_from_stream(g2, dx_um), (g1, g2)
+
+
+def layout_mask(g_true_a, dx_um, halo_um: float = 2.0):
+    """Where a metal level has wires, from its design: the band around the loop edges (where the
+    stream function changes), widened by a halo to allow for registration error. The loop's
+    interior is included so that the stream function may hold its plateau there."""
+    from scipy.ndimage import binary_dilation
+    it = max(1, int(round(halo_um / dx_um)))
+    return binary_dilation(g_true_a > 0.02 * g_true_a.max(), iterations=it)
+
+
+def loop_current_a(g_a, inside_mask):
+    """Current of a loop from its stream function: the plateau inside minus the level outside."""
+    return float(np.median(g_a[inside_mask]) - np.median(g_a[~inside_mask]))
+
+
+def fit_layout_currents(bz_t, dx_um, templates):
+    """The failure-analysis form of the problem: the current paths are known from the design and
+    only the current in each net is unknown. `templates` = [(unit stream function, depth_um), ...]
+    for 1 A in each path; the amplitudes follow from linear least squares on the field map."""
+    cols = [_forward_stream(g, dx_um, d).ravel() for g, d in templates]
+    A = np.stack(cols, axis=1)
+    amps, *_ = np.linalg.lstsq(A, bz_t.ravel(), rcond=None)
+    return amps
