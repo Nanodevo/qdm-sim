@@ -61,5 +61,5 @@ for i, (lab, truth) in enumerate((("good", GOOD), ("open via", OPEN))):
     a.plot(xs + (2 * i - 1) * w, np.array(truth) * 1e6, "k_", ms=22, mew=2)
 a.set(title="(f) net currents fitted to the maps (black = truth)", xticks=xs, xticklabels=["net A (via path)", "net B (M3)"], ylabel="current (µA)", ylim=(-5, 62)); a.legend(fontsize=7.5, loc="upper left")
 fig.suptitle("Vertical currents: a via shows in Bz as one trace ending and another starting; the field vector adds redundancy, not new information", y=1.0)
-fig.tight_layout(); fig.savefig(OUT / "fig8_vector.png"); print("fig8")
+fig.tight_layout(); fig.savefig(OUT / "fig9_vector.png"); print("fig9")
 for k, v in res.items(): print(k, np.round(v * 1e6, 1))

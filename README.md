@@ -24,8 +24,8 @@ qdm.rays      Monte Carlo ray tracing of the collection (flat face, mirrored bac
               lens, Fresnel and TIR) and of the illumination beam's refraction into the diamond
 qdm.segments  3D current paths with vias (closed-form Biot-Savart per segment), the field vector
               as the four NV orientations measure it, net-current fit to the vector map
-scripts/figs.py   figures 1, 2, 5, 6; figs_material.py 3, 4; fig_two_layer.py 7; fig_vector.py 8; fig_rays.py 9;
-                  optiland_imaging.py 10 (the imaging path in optiland, an open-source sequential ray tracer);
+scripts/fig_levels.py figure 1 (level diagram); figs.py 2, 3, 6, 7; figs_material.py 4, 5; fig_two_layer.py 8; fig_vector.py 9; fig_rays.py 10;
+                  optiland_imaging.py 11 (the imaging path in optiland, an open-source sequential ray tracer);
                   export_sim.py the data of the interactive page
 tests/            13 checks: Zeeman splitting, eight lines, collection numbers (estimates and ray trace),
                   wire peaks, Fourier forward against direct Biot-Savart, forward-inverse round trip,
