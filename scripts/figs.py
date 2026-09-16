@@ -25,16 +25,16 @@ lines = np.array([nv.all_transitions_ghz(b * B_DIR).ravel() for b in bs])
 for i in range(8):
     a.plot(bs * 1e3, lines[:, i], color=f"C{i // 2}", lw=1.2)
 a.set(title="(a) the eight ODMR lines vs field", xlabel="|B| (mT)", ylabel="transition frequency (GHz)")
-a.text(0.3, 2.885, "one colour per NV orientation", fontsize=8.5)
+a.text(0.02, 0.97, "one colour per NV orientation,\ntwo lines each", transform=a.transAxes, va="top", fontsize=8.5)
 
 a = ax[1]
 f = np.linspace(2.78, 2.96, 4000)
 b = 3e-3 * B_DIR
 a.plot(f, nv.odmr_spectrum(f, b, contrast=0.02, linewidth_mhz=1.0), lw=1)
 ln = nv.all_transitions_ghz(b)
-a.annotate("", xy=(ln[0, 0], 0.9985), xytext=(ln[0, 1], 0.9985), arrowprops=dict(arrowstyle="<->", color="C0"))
-a.text((ln[0, 0] + ln[0, 1]) / 2, 0.999, "2γB∥ for orientation 1", ha="center", fontsize=8.5, color="C0")
-a.set(title="(b) ensemble ODMR at 3 mT (2 % contrast, 1 MHz lines)", xlabel="microwave frequency (GHz)", ylabel="fluorescence (normalised)")
+a.annotate("", xy=(ln[0, 0], 1.00035), xytext=(ln[0, 1], 1.00035), arrowprops=dict(arrowstyle="<->", color="C0"))
+a.text((ln[0, 0] + ln[0, 1]) / 2, 1.00045, "2γB∥ for the orientation most aligned with B", ha="center", fontsize=8.5, color="C0")
+a.set(title="(b) ensemble ODMR at 3 mT (2 % contrast, 1 MHz lines)", xlabel="microwave frequency (GHz)", ylabel="fluorescence (normalised)", ylim=(0.9946, 1.0008))
 
 a = ax[2]
 f0 = ln[0, 1]
@@ -43,7 +43,8 @@ s0 = nv.odmr_spectrum(fz, b, 0.02, 1.0)
 s1 = nv.odmr_spectrum(fz, b + 20e-6 * B_DIR, 0.02, 1.0)
 a.plot((fz - f0) * 1e3, s0, label="B")
 a.plot((fz - f0) * 1e3, s1, label="B + 20 µT along the axis: shift 0.56 MHz")
-a.axvline(-0.29, color="k", ls=":", lw=0.8); a.text(-0.27, 0.9965, "readout point:\nsteepest slope", fontsize=8)
+a.axvline(-0.29, color="k", ls=":", lw=0.8)
+a.annotate("readout point:\nthe steepest slope", xy=(-0.29, 0.9975), xytext=(-3.8, 0.9962), fontsize=8, arrowprops=dict(arrowstyle="->", color="k", lw=0.8))
 a.set(title="(c) how a field becomes a signal", xlabel="detuning from the line (MHz)", ylabel="fluorescence (normalised)")
 a.legend(loc="lower right")
 fig.suptitle("Nitrogen-vacancy ground state: D = 2.870 GHz, γ = 28.0 MHz/mT, four <111> orientations", y=1.0)
