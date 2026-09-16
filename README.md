@@ -23,14 +23,17 @@ qdm.current   sheet currents -> Bz at the NV plane (Fourier Biot-Savart, Roth 19
 qdm.rays      Monte Carlo ray tracing of the collection (flat face, mirrored back, solid immersion
               lens, Fresnel and TIR) and of the illumination beam's refraction into the diamond
 qdm.segments  3D current paths with vias (closed-form Biot-Savart per segment), the field vector
-              as the four NV orientations measure it, net-current fit to the vector map
-scripts/fig_levels.py figure 1 (level diagram); figs.py 2, 3, 6, 7; figs_material.py 4, 5; fig_two_layer.py 8; fig_vector.py 9; fig_rays.py 10;
-                  optiland_imaging.py 11 (the imaging path in optiland, an open-source sequential ray tracer);
+              as the four NV orientations measure it, net-current fit to the vector map,
+              Bz recovered from a single orientation's projection map
+scripts/fig_levels.py figure 1 (level diagram); fig_crystal.py 2 (lattice, plate orientations); figs.py 3, 4, 7, 8;
+                  figs_material.py 5, 6; fig_two_layer.py 9; fig_vector.py 10; fig_rays.py 11;
+                  optiland_imaging.py 12 (the imaging path in optiland, an open-source sequential ray tracer);
                   export_sim.py the data of the interactive page
-tests/            13 checks: Zeeman splitting, eight lines, collection numbers (estimates and ray trace),
+tests/            14 checks: Zeeman splitting, eight lines, collection numbers (estimates and ray trace),
                   wire peaks, Fourier forward against direct Biot-Savart, forward-inverse round trip,
                   material and protocol relations, two-layer and vector recovery, Bz fixing the
-                  in-plane field above all sources, the beam's refraction into the diamond
+                  in-plane field above all sources, a single-orientation projection converted to Bz,
+                  the beam's refraction into the diamond
 ```
 
 Study page: https://nanodevo.github.io/reports/qdm-sim.html

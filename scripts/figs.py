@@ -48,7 +48,7 @@ a.annotate("readout point:\nthe steepest slope", xy=(-0.29, 0.9975), xytext=(-3.
 a.set(title="(c) how a field becomes a signal", xlabel="detuning from the line (MHz)", ylabel="fluorescence (normalised)")
 a.set_ylim(0.9925, 1.00025); a.legend(loc="lower right")
 fig.suptitle("Nitrogen-vacancy ground state: D = 2.870 GHz, γ = 28.0 MHz/mT, four <111> orientations", y=1.0)
-fig.tight_layout(); fig.savefig(OUT / "fig2_odmr.png"); print("fig2")
+fig.tight_layout(); fig.savefig(OUT / "fig3_odmr.png"); print("fig3")
 
 # ------------------------------------------------------------------ fig 2: photons and sensitivity
 fig, ax = plt.subplots(1, 3, figsize=(12.5, 3.9))
@@ -83,7 +83,7 @@ for lab, c in cfg.items():
 a.set(title="(c) field noise per pixel vs collection", xlabel="collected fraction (%)", ylabel="field noise per pixel (nT)")
 a.legend(loc="upper right")
 fig.suptitle("From illumination to photons to sensitivity: the collection efficiency enters as its square root", y=1.0)
-fig.tight_layout(); fig.savefig(OUT / "fig3_photons.png"); print("fig3")
+fig.tight_layout(); fig.savefig(OUT / "fig4_photons.png"); print("fig4")
 
 # ------------------------------------------------------------------ fig 3: resolution
 fig, ax = plt.subplots(1, 3, figsize=(12.5, 3.9))
@@ -113,7 +113,7 @@ a.axhline(0.5, color="k", ls=":", lw=0.8)
 a.set(title="(c) stand-off as a low-pass filter", xlabel="spatial period of the current pattern (µm)", ylabel="field amplitude transferred")
 a.legend(loc="upper left")
 fig.suptitle("Spatial resolution: the NV layer sees the chip through the distance between them", y=1.0)
-fig.tight_layout(); fig.savefig(OUT / "fig6_resolution.png"); print("fig6")
+fig.tight_layout(); fig.savefig(OUT / "fig7_resolution.png"); print("fig7")
 
 # ------------------------------------------------------------------ fig 4: current map reconstruction
 n, dx = 192, 0.5
@@ -170,5 +170,5 @@ a.legend(loc="upper right")
 for aa in ax.ravel()[:5]:
     aa.set(xlabel="x (µm)", ylabel="y (µm)"); aa.grid(False)
 fig.suptitle("From the chip's currents to the field the NVs see and back: the deep loop is blurred by its stand-off, the shallow one by the photon budget", y=1.0)
-fig.tight_layout(); fig.savefig(OUT / "fig7_reconstruction.png"); print("fig7")
+fig.tight_layout(); fig.savefig(OUT / "fig8_reconstruction.png"); print("fig8")
 print(f"noise bare {s_bare*1e9:.0f} nT, SIL {s_sil*1e9:.0f} nT; peak Bz {vmax:.2f} uT; collection bare {c_bare*100:.2f} % SIL {c_sil*100:.1f} %")

@@ -63,6 +63,6 @@ a.axhline(60, color="k", ls="--", lw=0.8, label="true 60 µA (deep)"); a.axhline
 a.set(title="(f) recovered loop currents against noise", xticks=xs, xticklabels=labels, ylabel="current (µA)", ylim=(0, 92))
 a.set_ylim(0, 100); a.legend(loc="upper left", fontsize=7.5, ncol=1, framealpha=0.95)
 fig.suptitle("Two metal levels from one field map: what the depths and the layout buy (SIL, 1 s per pixel, 219 nT noise)", y=1.0)
-fig.tight_layout(); fig.savefig(OUT / "fig8_two_layer.png"); print("fig8")
+fig.tight_layout(); fig.savefig(OUT / "fig9_two_layer.png"); print("fig9")
 for lab, vals in rows.items():
     print(lab, [(round(a * 1e6, 1), round(b * 1e6, 1)) for a, b in vals])

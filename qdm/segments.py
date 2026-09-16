@@ -108,6 +108,24 @@ def hilbert_inplane(bz, dx_m):
     return np.real(np.fft.ifft2(Bx)), np.real(np.fft.ifft2(By))
 
 
+def bz_from_projection(proj, axis, dx_m):
+    """Bz from the projection of the field on one NV axis, on a plane above all sources. With
+    Bx = -i kx/k Bz and By = -i ky/k Bz (hilbert_inplane) the projection n.B has the Fourier
+    transform P(k) = (n_z - i (n_x kx + n_y ky)/k) Bz(k): a fixed filter whose magnitude is never
+    below |n_z|, so a single orientation's map, e.g. one <111> axis on a (100) plate where
+    n_z = 0.577, can be turned into a Bz map before the inversion. The k = 0 term, where the
+    in-plane relation is undefined, is taken as P / n_z."""
+    n = proj.shape[0]
+    nx, ny, nz = np.asarray(axis, float) / np.linalg.norm(axis)
+    k1 = 2 * np.pi * np.fft.fftfreq(n, d=dx_m)
+    kx, ky = np.meshgrid(k1, k1, indexing="xy")
+    k = np.hypot(kx, ky)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        H = nz - 1j * (nx * kx + ny * ky) / k
+    H[k == 0] = nz
+    return np.real(np.fft.ifft2(np.fft.fft2(proj) / H))
+
+
 def hilbert_residual(bx, by, bz, dx_m):
     """|measured in-plane field - in-plane field predicted from Bz|. For a closed circuit it is a
     finite-window artifact that shrinks as the window grows (0.2 % of the field at +-128 um for

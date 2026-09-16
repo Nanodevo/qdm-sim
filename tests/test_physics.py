@@ -114,6 +114,25 @@ def test_bz_determines_the_inplane_field_even_with_vias():
     assert res[0] < 0.05 and res[1] < 0.01 and res[1] < res[0] / 3
 
 
+def test_single_orientation_projection_converts_to_bz():
+    """On a (100) plate no NV axis is normal to the surface; the projection on one <111> axis is a
+    fixed Fourier filter of Bz above all sources, so Bz is recovered from that one map."""
+    from qdm import segments
+    from qdm.nv import NV_AXES
+    u = 1e-6
+    path = [(-60*u,-4*u,-1*u),(-6*u,-4*u,-1*u),(-6*u,-4*u,-4*u),(14*u,-4*u,-4*u),(14*u,-4*u,-1*u),(60*u,-4*u,-1*u),(60*u,60*u,-1*u),(-60*u,60*u,-1*u),(-60*u,-4*u,-1*u)]
+    n = 256
+    ax = (np.arange(n) - n // 2) * 0.5e-6
+    X, Y = np.meshgrid(ax, ax)
+    bx, by, bz = segments.path_field(path, 50e-6, X, Y, 0.0)
+    axis = NV_AXES[0]
+    proj = axis[0] * bx + axis[1] * by + axis[2] * bz
+    rec = segments.bz_from_projection(proj, axis, 0.5e-6)
+    c = slice(n // 4, 3 * n // 4)
+    assert np.abs(rec[c, c] - bz[c, c]).max() < 0.05 * np.abs(bz).max()
+    assert np.allclose(segments.bz_from_projection(bz, (0, 0, 1), 0.5e-6), bz)
+
+
 def test_ray_traced_collection_agrees_with_solid_angle_estimates():
     from qdm import photons, rays
     # bare flat surface: the Monte Carlo integrates the angle-dependent Fresnel loss the estimate averages
