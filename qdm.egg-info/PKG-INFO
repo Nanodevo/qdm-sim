@@ -1,0 +1,8 @@
+Metadata-Version: 2.4
+Name: qdm
+Version: 0.1.0
+Summary: System model of a widefield quantum diamond microscope: NV spin physics, photon collection, sensitivity, resolution, and current-map reconstruction from the field of a chip.
+Requires-Python: >=3.11
+Requires-Dist: numpy
+Requires-Dist: scipy
+Requires-Dist: matplotlib
