@@ -112,3 +112,25 @@ def test_bz_determines_the_inplane_field_even_with_vias():
         r = segments.hilbert_residual(bx, by, bz, 0.5e-6)
         res.append(r[np.argmin(abs(ax + 4e-6)), np.argmin(abs(ax + 6e-6))] / np.hypot(bx, by).max())   # at the via
     assert res[0] < 0.05 and res[1] < 0.01 and res[1] < res[0] / 3
+
+
+def test_ray_traced_collection_agrees_with_solid_angle_estimates():
+    from qdm import photons, rays
+    # bare flat surface: the Monte Carlo integrates the angle-dependent Fresnel loss the estimate averages
+    mc = rays.collection_mc(0.9, "bare", n_rays=200_000)
+    est = photons.collection_fraction(0.9)
+    assert abs(mc - est) / est < 0.2
+    # solid immersion lens, uncoated: the estimate assumed no surface loss, the trace pays ~17 %
+    mc_sil = rays.collection_mc(0.9, "sil", n_rays=200_000)
+    est_sil = photons.collection_fraction(0.9, sil=True)
+    assert 0.7 * est_sil < mc_sil < est_sil
+    assert abs(rays.collection_mc(0.9, "sil", n_rays=200_000, sil_coated=True) - est_sil) / est_sil < 0.05
+    # a mirrored back side roughly doubles the bare case
+    assert 1.7 < rays.collection_mc(0.9, "mirror", n_rays=200_000) / mc < 2.1
+
+
+def test_illumination_refraction():
+    from qdm import rays
+    f = rays.illumination_footprint(53.6, 36.0, 300.0)
+    assert 19 < f["theta_t_deg"] < 20 and 100 < f["shift_um"] < 112 and 0.78 < f["fresnel_t"] < 0.84
+    assert abs(f["semi_axes_um"][1] / f["semi_axes_um"][0] - 1.68) < 0.02
