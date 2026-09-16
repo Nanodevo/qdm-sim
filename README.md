@@ -13,10 +13,13 @@ resolution" have numbers.
 qdm.nv        spin-1 Hamiltonian, four <111> orientations, ODMR lines and spectra
 qdm.photons   escape cone, collection fraction (bare, back mirror, SIL), photons per pixel,
               shot-noise-limited sensitivity (Dreau et al. 2011)
+qdm.material  nitrogen content, irradiation dose, isotopes, strain and surface termination
+              -> NV density, T2*, linewidth, active layer, contrast (Bauch 2020 scalings)
+qdm.protocols CW (power-broadened), pulsed ODMR and Ramsey sensitivities with duty cycle (Barry 2020)
 qdm.optics    diffraction, wire response, the stand-off as a low-pass filter
 qdm.current   sheet currents -> Bz at the NV plane (Fourier Biot-Savart, Roth 1989)
               -> current map back from Bz with a windowed inversion
-scripts/figs.py   the four figures of the study
+scripts/figs.py   figures 1-4 of the study; scripts/figs_material.py figures 5-6
 tests/            checks: Zeeman splitting, eight lines, collection numbers, wire peaks,
                   Fourier forward against direct Biot-Savart, forward-inverse round trip
 ```
@@ -31,7 +34,7 @@ python scripts/figs.py
 ```
 
 Assumptions, stated once: isotropic NV emission (the average over the four
-orientations), continuous-wave ODMR with photon shot noise as the only noise,
+orientations), photon shot noise as the only noise,
 Lorentzian lines of fixed contrast and width, sheet currents at a single depth
 for the inversion, no ray tracing of the imaging optics (the collection
 fractions are solid-angle and Fresnel estimates). Every number in the figures
