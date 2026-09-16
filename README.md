@@ -24,11 +24,13 @@ qdm.rays      Monte Carlo ray tracing of the collection (flat face, mirrored bac
               lens, Fresnel and TIR) and of the illumination beam's refraction into the diamond
 qdm.segments  3D current paths with vias (closed-form Biot-Savart per segment), the field vector
               as the four NV orientations measure it, net-current fit to the vector map
-scripts/figs.py   figures 1-4; figs_material.py 5-6; fig_two_layer.py 7; fig_vector.py 8; fig_rays.py 9;
+scripts/figs.py   figures 1, 2, 5, 6; figs_material.py 3, 4; fig_two_layer.py 7; fig_vector.py 8; fig_rays.py 9;
                   optiland_imaging.py 10 (the imaging path in optiland, an open-source sequential ray tracer);
                   export_sim.py the data of the interactive page
-tests/            checks: Zeeman splitting, eight lines, collection numbers, wire peaks,
-                  Fourier forward against direct Biot-Savart, forward-inverse round trip
+tests/            13 checks: Zeeman splitting, eight lines, collection numbers (estimates and ray trace),
+                  wire peaks, Fourier forward against direct Biot-Savart, forward-inverse round trip,
+                  material and protocol relations, two-layer and vector recovery, Bz fixing the
+                  in-plane field above all sources, the beam's refraction into the diamond
 ```
 
 Study page: https://nanodevo.github.io/reports/qdm-sim.html
@@ -43,6 +45,10 @@ python scripts/figs.py
 Assumptions, stated once: isotropic NV emission (the average over the four
 orientations), photon shot noise as the only noise,
 Lorentzian lines of fixed contrast and width, sheet currents at a single depth
-for the inversion, no ray tracing of the imaging optics (the collection
-fractions are solid-angle and Fresnel estimates). Every number in the figures
-follows from those assumptions and the constants at the top of each module.
+for the basic inversion (qdm.current lifts that with known depths and layout,
+qdm.segments with three-dimensional paths). The collection fractions of
+qdm.photons are solid-angle and Fresnel estimates, checked by the Monte Carlo
+trace in qdm.rays; the imaging path is modelled in optiland with a paraxial
+objective (scripts/optiland_imaging.py), so the objective's own surfaces and
+tolerances stay open. Every number in the figures follows from those
+assumptions and the constants at the top of each module.

@@ -114,7 +114,7 @@ a.axhline(0.5, color="k", ls=":", lw=0.8)
 a.set(title="(c) stand-off as a low-pass filter", xlabel="spatial period of the current pattern (µm)", ylabel="field amplitude transferred")
 a.legend(loc="lower right")
 fig.suptitle("Spatial resolution: the NV layer sees the chip through the distance between them", y=1.0)
-fig.tight_layout(); fig.savefig(OUT / "fig3_resolution.png"); print("fig3")
+fig.tight_layout(); fig.savefig(OUT / "fig5_resolution.png"); print("fig5")
 
 # ------------------------------------------------------------------ fig 4: current map reconstruction
 n, dx = 192, 0.5
@@ -171,5 +171,5 @@ a.legend(loc="upper right")
 for aa in ax.ravel()[:5]:
     aa.set(xlabel="x (µm)", ylabel="y (µm)"); aa.grid(False)
 fig.suptitle("From the chip's currents to the field the NVs see and back: the deep loop is blurred by its stand-off, the shallow one by the photon budget", y=1.0)
-fig.tight_layout(); fig.savefig(OUT / "fig4_reconstruction.png"); print("fig4")
+fig.tight_layout(); fig.savefig(OUT / "fig6_reconstruction.png"); print("fig6")
 print(f"noise bare {s_bare*1e9:.0f} nT, SIL {s_sil*1e9:.0f} nT; peak Bz {vmax:.2f} uT; collection bare {c_bare*100:.2f} % SIL {c_sil*100:.1f} %")

@@ -56,7 +56,7 @@ for surf in ("oxygen", "hydrogen"):
 a.set(title="(d) share of a shallow NV layer that stays NV⁻", xlabel="NV layer thickness (nm)", ylabel="active fraction (%)", ylim=(0, 105))
 a.legend(loc="lower right")
 fig.suptitle("The diamond as a sensor: growth, irradiation, isotopes and surface, expressed as density, coherence and contrast", y=1.0)
-fig.tight_layout(); fig.savefig(OUT / "fig5_material.png"); print("fig5")
+fig.tight_layout(); fig.savefig(OUT / "fig3_material.png"); print("fig3")
 
 # ------------------------------------------------------------------ fig 6: protocols
 fig, ax = plt.subplots(1, 3, figsize=(12.5, 3.9))
@@ -91,4 +91,4 @@ a.axhline(1e9 * protocols.eta_cw(R, material.linewidth_hz(T2), c0, 2.0), color="
 a.set(title="(c) the readout duty cycle (T₂* = 5 µs, 2 µs init)", xlabel="readout window (µs)", ylabel="sensitivity per pixel (nT/√Hz)")
 a.legend(loc="upper right")
 fig.suptitle("Protocols: what sets the frequency resolution, and what the duty cycle costs in photons", y=1.0)
-fig.tight_layout(); fig.savefig(OUT / "fig6_protocols.png"); print("fig6")
+fig.tight_layout(); fig.savefig(OUT / "fig4_protocols.png"); print("fig4")
