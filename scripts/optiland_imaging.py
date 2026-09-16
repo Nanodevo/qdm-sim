@@ -56,14 +56,14 @@ if __name__ == "__main__":
     rows = []
     airy = 0.61 * LAMBDA_UM / 0.9
     for a, (mode, na, lab) in zip(ax, cases):
-        o = system(mode, na)
+        o = system(mode, na); pair = []
         for hy, fy, col in ((0.0, 0, "C0"), (1.0, 32, "C3")):
             x, y, rms = spot(o, hy)
-            a.plot(x, y, ".", ms=2, color=col, alpha=.6, label=f"field {fy} µm: RMS {rms:.2f} µm")
-            rows.append((lab, fy, rms))
+            a.plot(x, y, ".", ms=2, color=col, alpha=.6, label="centre of the field" if fy == 0 else "32 µm off centre")
+            rows.append((lab, fy, rms)); pair.append(rms)
         c = plt.Circle((0, 0), airy, fill=False, color="k", ls=":", lw=1); a.add_patch(c)
-        a.set(title=lab, xlabel="x at the NV layer (µm)", ylabel="y (µm)", xlim=(-3, 3), ylim=(-3, 3)); a.set_aspect("equal"); a.legend(fontsize=8, loc="upper right"); a.grid(alpha=.3)
-    ax[0].text(-2.9, -2.8, f"dotted: Airy radius {airy:.2f} µm at NA 0.9", fontsize=8)
+        a.set(xlabel="x at the NV layer (µm)", ylabel="y (µm)", xlim=(-3, 3), ylim=(-3, 3)); a.set_title(f"{lab}\nRMS {pair[0]:.2f} µm at the centre, {pair[1]:.2f} µm at 32 µm off", fontsize=10); a.set_aspect("equal"); a.grid(alpha=.3)
+    ax[1].legend(fontsize=8, loc="upper right"); ax[1].text(-2.9, -2.8, f"dotted: Airy radius {airy:.2f} µm at NA 0.9", fontsize=8)
     fig.suptitle("Spot diagrams at the NV layer through an ideal objective (optiland 0.6.1): the diamond plate adds spherical aberration, the SIL does not", y=1.0)
     fig.tight_layout(); fig.savefig(OUT / "fig10_optiland.png"); print("fig10")
     for lab, fy, rms in rows:

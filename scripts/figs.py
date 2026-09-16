@@ -46,7 +46,7 @@ a.plot((fz - f0) * 1e3, s1, label="B + 20 µT along the axis: shift 0.56 MHz")
 a.axvline(-0.29, color="k", ls=":", lw=0.8)
 a.annotate("readout point:\nthe steepest slope", xy=(-0.29, 0.9975), xytext=(-3.8, 0.9962), fontsize=8, arrowprops=dict(arrowstyle="->", color="k", lw=0.8))
 a.set(title="(c) how a field becomes a signal", xlabel="detuning from the line (MHz)", ylabel="fluorescence (normalised)")
-a.legend(loc="lower right")
+a.set_ylim(0.9925, 1.00025); a.legend(loc="lower right")
 fig.suptitle("Nitrogen-vacancy ground state: D = 2.870 GHz, γ = 28.0 MHz/mT, four <111> orientations", y=1.0)
 fig.tight_layout(); fig.savefig(OUT / "fig1_odmr.png"); print("fig1")
 
@@ -55,20 +55,19 @@ fig, ax = plt.subplots(1, 3, figsize=(12.5, 3.9))
 na = np.linspace(0.1, 0.95, 200)
 a = ax[0]
 a.plot(na, [100 * photons.collection_fraction(v) for v in na], label="bare (100) surface")
-a.plot(na, [100 * photons.collection_fraction(v, back_mirror=True) for v in na], label="bare + reflective back side")
-a.plot(na, [100 * photons.collection_fraction(v, sil=True) for v in na], label="solid immersion lens (n = 2.42)")
-a.axhline(100 * photons.escape_cone_fraction() * photons.FRESNEL_T_NORMAL, color="k", ls="--", lw=0.8)
-a.text(0.12, 4.1, "escape-cone limit of a flat surface, 3.8 %", fontsize=8)
+a.plot(na, [100 * photons.collection_fraction(v, back_mirror=True) for v in na], label="bare, mirrored back side")
+a.plot(na, [100 * photons.collection_fraction(v, sil=True) for v in na], label="solid immersion lens")
+a.axhline(100 * photons.escape_cone_fraction() * photons.FRESNEL_T_NORMAL, color="k", ls="--", lw=0.8, label="flat-surface escape cone: 3.8 %")
 a.set(title="(a) fraction of NV photons collected", xlabel="numerical aperture", ylabel="collected (%)", yscale="log", ylim=(0.05, 60))
-a.legend(loc="upper left")
+a.set_ylim(0.015, 60); a.legend(loc="lower right", fontsize=8)
 
 a = ax[1]
 I = np.logspace(1, 6.3, 300)
 cfg = {"bare, NA 0.9": photons.collection_fraction(0.9), "back mirror, NA 0.9": photons.collection_fraction(0.9, back_mirror=True), "SIL, NA 0.9": photons.collection_fraction(0.9, sil=True)}
 for lab, c in cfg.items():
     a.loglog(I, [photons.photon_rate_per_pixel(i, 1e17, 1.0, 1.0, c) for i in I], label=lab)
-a.axvline(1e3, color="gray", ls=":", lw=0.8); a.text(1.2e3, 2e9, "typical widefield\n1 kW/cm²", fontsize=8, color="gray")
-a.axhline(1e7, color="gray", ls="--", lw=0.8); a.text(15, 1.4e7, "camera full well at 100 frames/s", fontsize=8, color="gray")
+a.axvline(1e3, color="gray", ls=":", lw=0.8); a.text(7e2, 3e10, "typical widefield\n1 kW/cm²", fontsize=8, color="gray", ha="right")
+a.axhline(1e7, color="gray", ls="--", lw=0.8); a.text(2e6, 1.4e7, "camera full well at 100 frames/s", fontsize=8, color="gray", ha="right")
 a.set(title="(b) detected photons per 1 µm pixel", xlabel="532 nm intensity (W/cm²)", ylabel="photons / s / pixel")
 a.legend(loc="lower right")
 
@@ -101,7 +100,7 @@ for n_a in (0.5, 0.9):
     a.plot(ds, [optics.wire_response_width_um(n_a, d) for d in ds], label=f"NA {n_a}: peak-to-peak width")
     a.axhline(optics.diffraction_fwhm_um(n_a), color="gray", ls=":", lw=0.8)
 a.plot(ds, 2 * ds, "k--", lw=0.8, label="2 × stand-off")
-a.text(3.2, 0.9, "diffraction floors 0.71 / 0.40 µm", fontsize=8, color="gray")
+a.text(3.2, 1.15, "diffraction floors 0.71 / 0.40 µm", fontsize=8, color="gray")
 a.set(title="(b) imaged wire width vs stand-off", xlabel="stand-off d (µm)", ylabel="width (µm)")
 a.legend(loc="upper left")
 
@@ -112,7 +111,7 @@ for d in (0.5, 1.0, 2.0, 4.0):
     a.semilogx(period, optics.standoff_transfer(k, d), label=f"d = {d} µm")
 a.axhline(0.5, color="k", ls=":", lw=0.8)
 a.set(title="(c) stand-off as a low-pass filter", xlabel="spatial period of the current pattern (µm)", ylabel="field amplitude transferred")
-a.legend(loc="lower right")
+a.legend(loc="upper left")
 fig.suptitle("Spatial resolution: the NV layer sees the chip through the distance between them", y=1.0)
 fig.tight_layout(); fig.savefig(OUT / "fig5_resolution.png"); print("fig5")
 
@@ -149,9 +148,9 @@ im = ax[0, 2].imshow(bz_bare * 1e6, extent=ext, origin="lower", cmap="RdBu_r", v
 fig.colorbar(im, ax=ax[0, 2], label="Bz (µT)")
 jr_free = current.reconstruct_currents(bz, dx, D_TOP, k_cut_per_um=2.0 / D_TOP)
 jmax = np.hypot(*jr_free).max()
-im = ax[1, 0].imshow(np.hypot(*jr_bare), extent=ext, origin="lower", cmap="magma", vmin=0, vmax=jmax); ax[1, 0].set_title("(d) current map from (c), inverted at 1 µm")
+im = ax[1, 0].imshow(np.hypot(*jr_bare), extent=ext, origin="lower", cmap="magma", vmin=0, vmax=jmax); ax[1, 0].set_title("(d) current map from (c),\ninverted at 1 µm")
 fig.colorbar(im, ax=ax[1, 0], label="|J| (A/m)")
-im = ax[1, 1].imshow(np.hypot(*jr_sil), extent=ext, origin="lower", cmap="magma", vmin=0, vmax=jmax); ax[1, 1].set_title(f"(e) with a solid immersion lens: noise {s_sil * 1e9:.0f} nT")
+im = ax[1, 1].imshow(np.hypot(*jr_sil), extent=ext, origin="lower", cmap="magma", vmin=0, vmax=jmax); ax[1, 1].set_title(f"(e) with a solid immersion lens:\nnoise {s_sil * 1e9:.0f} nT")
 fig.colorbar(im, ax=ax[1, 1], label="|J| (A/m)")
 a = ax[1, 2]
 colls = np.logspace(-3, np.log10(0.6), 14)
@@ -165,7 +164,7 @@ for t, lab in ((1.0, "1 s per pixel"), (10.0, "10 s per pixel")):
         errs.append(current.rms_error(jr, j_ref))
     a.semilogx(colls * 100, errs, "o-", ms=3, label=lab)
 for c, lab in ((c_bare, "bare"), (c_sil, "SIL")):
-    a.axvline(c * 100, color="gray", ls=":", lw=0.8); a.text(c * 100 * 1.08, 0.95, lab, fontsize=8, color="gray")
+    a.axvline(c * 100, color="gray", ls=":", lw=0.8); a.text(c * 100 * 1.1, 0.5, lab, fontsize=8, color="gray", rotation=90, va="center")
 a.set(title="(f) noise in the current map vs collection", xlabel="collected fraction (%)", ylabel="RMS error vs noise-free inversion", ylim=(0, 1.0))
 a.legend(loc="upper right")
 for aa in ax.ravel()[:5]:

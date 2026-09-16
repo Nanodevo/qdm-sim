@@ -59,10 +59,9 @@ for i, (lab, vals) in enumerate(rows.items()):
     v = np.array(vals) * 1e6
     a.bar(xs + (i - 1) * w, v[:, 1], w, label=f"{lab}: deep loop", color=f"C{i}")
     a.bar(xs + (i - 1) * w, v[:, 0], w * 0.5, color=f"C{i}", alpha=0.55, hatch="//")
-a.axhline(60, color="k", ls="--", lw=0.8); a.axhline(20, color="k", ls=":", lw=0.8)
-a.text(2.45, 61.5, "true 60 µA (deep)", fontsize=8, ha="right"); a.text(2.45, 21.5, "true 20 µA (shallow, hatched)", fontsize=8, ha="right")
+a.axhline(60, color="k", ls="--", lw=0.8, label="true 60 µA (deep)"); a.axhline(20, color="k", ls=":", lw=0.8, label="true 20 µA (shallow, hatched bars)")
 a.set(title="(f) recovered loop currents against noise", xticks=xs, xticklabels=labels, ylabel="current (µA)", ylim=(0, 92))
-a.legend(loc="upper left", fontsize=7.5, ncol=1, framealpha=0.95)
+a.set_ylim(0, 100); a.legend(loc="upper left", fontsize=7.5, ncol=1, framealpha=0.95)
 fig.suptitle("Two metal levels from one field map: what the depths and the layout buy (SIL, 1 s per pixel, 219 nT noise)", y=1.0)
 fig.tight_layout(); fig.savefig(OUT / "fig7_two_layer.png"); print("fig7")
 for lab, vals in rows.items():

@@ -45,17 +45,17 @@ a = ax[0, 2]
 nas = np.linspace(0.3, 0.95, 14)
 for mode, lab, est, kw in (("bare", "bare", lambda v: photons.collection_fraction(v), {}), ("mirror", "mirrored back", lambda v: photons.collection_fraction(v, back_mirror=True), {}), ("sil", "SIL, uncoated", None, {}), ("sil", "SIL, coated", lambda v: photons.collection_fraction(v, sil=True), {"sil_coated": True})):
     mc = [100 * rays.collection_mc(v, mode, n_rays=100_000, **kw) for v in nas]
-    ln, = a.semilogy(nas, mc, "o", ms=4, label=f"{lab}: ray trace")
-    if est: a.semilogy(nas, [100 * est(v) for v in nas], "-", color=ln.get_color(), lw=1, alpha=.7, label=f"{lab}: section 3 estimate")
-a.set(title="(c) collected fraction: traced vs estimated", xlabel="numerical aperture", ylabel="collected (%)"); a.legend(fontsize=7, loc="lower right")
+    ln, = a.semilogy(nas, mc, "o", ms=4, label=f"{lab}, traced")
+    if est: a.semilogy(nas, [100 * est(v) for v in nas], "-", color=ln.get_color(), lw=1, alpha=.7, label=f"{lab}, estimate")
+a.set(title="(c) collected fraction: traced vs estimated", xlabel="numerical aperture", ylabel="collected (%)", ylim=(0.3, 400)); a.legend(fontsize=7, loc="upper left", ncol=2, columnspacing=1.0)
 
 # (d) uniformity across the field with a SIL
 a = ax[1, 0]
 xs = np.linspace(0, 150, 16)
 for R in (1000, 500, 250):
     a.plot(xs, [100 * rays.collection_mc(0.9, "sil", n_rays=100_000, field_um=x, sil_radius_um=R) for x in xs], "o-", ms=3, label=f"SIL radius {R / 1000:g} mm")
-a.axvspan(0, 32, color="gray", alpha=.15); a.text(2, 21.9, "field of view\nof the simulation", fontsize=8)
-a.set(title="(d) SIL collection across the field", xlabel="distance from the SIL centre (µm)", ylabel="collected (%)", ylim=(20.5, 24.5)); a.legend(loc="lower left")
+a.axvspan(0, 32, color="gray", alpha=.15); a.text(2, 20.65, "field of view\nof the simulation", fontsize=8, va="bottom")
+a.set(title="(d) SIL collection across the field", xlabel="distance from the SIL centre (µm)", ylabel="collected (%)", ylim=(20.5, 24.5)); a.legend(loc="upper right")
 
 # (e) illumination: refraction into the slab
 a = ax[1, 1]
@@ -68,7 +68,7 @@ for off in (-36, 0, 36):
     a.plot([x0, x0 - 300 * np.tan(th_t)], [0, -300], color="C2", lw=1.2, alpha=.9)
 a.plot([0, -300 * np.tan(th_t)], [0, -300], color="k", ls=":", lw=0.8)
 a.text(-245, -30, "diamond, 300 µm", fontsize=8); a.text(-245, -290, "NV layer", fontsize=8)
-a.text(120, 150, f"in air: 53.6°\nin diamond: {f['theta_t_deg']:.1f}°\nFresnel: {100 * f['fresnel_t']:.0f} % enters", fontsize=8)
+a.text(-245, 150, f"in air: 53.6°\nin diamond: {f['theta_t_deg']:.1f}°\nFresnel: {100 * f['fresnel_t']:.0f} % enters", fontsize=8)
 a.set(title="(e) the beam refracts at the top face", xlabel="x (µm)", ylabel="z (µm)", xlim=(-250, 250), ylim=(-320, 260)); a.set_aspect("equal"); a.grid(False)
 
 # (f) footprint on the NV layer
@@ -78,6 +78,6 @@ a.plot(36 * np.cos(tt), 36 * np.sin(tt), "--", color="gray", label="beam cross-s
 a.plot(f["semi_axes_um"][0] * np.cos(tt), f["shift_um"] + f["semi_axes_um"][1] * np.sin(tt), color="C2", lw=2, label=f"footprint on the NV layer: {f['semi_axes_um'][0]:.0f} × {f['semi_axes_um'][1]:.0f} µm, shifted {f['shift_um']:.0f} µm")
 a.plot(0, 0, "k+", ms=8); a.plot(0, f["shift_um"], "+", color="C2", ms=8)
 a.text(-95, -80, f"peak intensity {100 * f['peak_factor']:.0f} % of the beam's:\nFresnel loss × stretch", fontsize=8)
-a.set(title="(f) footprint on the NV layer", xlabel="x (µm)", ylabel="y (µm, along the tilt)", xlim=(-100, 100), ylim=(-100, 190)); a.set_aspect("equal"); a.legend(fontsize=7.5, loc="upper left")
+a.set(title="(f) footprint on the NV layer", xlabel="x (µm)", ylabel="y (µm, along the tilt)", xlim=(-100, 100), ylim=(-100, 235)); a.set_aspect("equal"); a.legend(fontsize=7.5, loc="upper left")
 fig.suptitle("Ray tracing the two optical paths: what the surfaces do to the collection and to the illumination", y=1.0)
 fig.tight_layout(); fig.savefig(OUT / "fig9_rays.png"); print("fig9")
