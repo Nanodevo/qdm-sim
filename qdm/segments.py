@@ -2,8 +2,12 @@
 vector they produce at the NV plane; the vector as the four NV orientations measure it; and
 the fit of net currents to the vector field.
 
-A vertical segment produces a purely azimuthal field: no Bz at all. That is why a via is
-invisible to a Bz-only map and why the vector matters for packaging problems.
+A vertical segment on its own produces a purely azimuthal field, no Bz at all. But a segment
+on its own is not a current: in a closed circuit the via is written into Bz as the end of one
+trace and the start of another at a different depth. Above all sources the field is a potential
+field, so Bz alone fixes the in-plane components (hilbert_inplane); the four NV orientations
+therefore add redundancy against noise and information at the edges of a finite field of view,
+not a new view of vias. The model checks that claim numerically (hilbert_residual).
 """
 from __future__ import annotations
 
@@ -49,8 +53,10 @@ def connectivity_scene(d1_um=1.0, d2_um=4.0):
     NV layer, metals at -d1 (M3) and -d2 (M1). Points are offset in y so the paths are distinct."""
     u = 1e-6
     z3, z1 = -d1_um * u, -d2_um * u
-    net_a = [(-30 * u, -4 * u, z3), (-6 * u, -4 * u, z3), (-6 * u, -4 * u, z1), (14 * u, -4 * u, z1), (14 * u, -4 * u, z3), (30 * u, -4 * u, z3)]
-    net_b = [(-30 * u, 6 * u, z3), (30 * u, 6 * u, z3)]
+    # the pads sit well outside the 64 um field of view, so that inside it every wire end is a via and
+    # not a place where current appears from nowhere (which the vertical signature would also flag)
+    net_a = [(-90 * u, -4 * u, z3), (-6 * u, -4 * u, z3), (-6 * u, -4 * u, z1), (14 * u, -4 * u, z1), (14 * u, -4 * u, z3), (90 * u, -4 * u, z3)]
+    net_b = [(-90 * u, 6 * u, z3), (90 * u, 6 * u, z3)]
     return {"A: M3 → via → M1 → via → M3": net_a, "B: M3 straight": net_b}
 
 
@@ -84,3 +90,27 @@ def fit_net_currents(measured, templates):
     A = np.stack([np.concatenate([t.ravel() for t in tpl]) for tpl in templates], axis=1)
     amps, *_ = np.linalg.lstsq(A, y, rcond=None)
     return amps
+
+
+def hilbert_inplane(bz, dx_m):
+    """The in-plane field that Bz implies above all sources: B is then a potential field whose
+    Fourier components decay upward as exp(-kz), so Bx(k) = -i kx/k Bz(k) and By(k) = -i ky/k Bz(k).
+    This holds for any closed current distribution below the plane, vias included."""
+    n = bz.shape[0]
+    k1 = 2 * np.pi * np.fft.fftfreq(n, d=dx_m)
+    kx, ky = np.meshgrid(k1, k1, indexing="xy")
+    k = np.hypot(kx, ky)
+    B = np.fft.fft2(bz)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        Bx = -1j * kx / k * B
+        By = -1j * ky / k * B
+    Bx[k == 0] = 0; By[k == 0] = 0
+    return np.real(np.fft.ifft2(Bx)), np.real(np.fft.ifft2(By))
+
+
+def hilbert_residual(bx, by, bz, dx_m):
+    """|measured in-plane field - in-plane field predicted from Bz|. For a closed circuit it is a
+    finite-window artifact that shrinks as the window grows (0.2 % of the field at +-128 um for
+    the scene of figure 8); it is not a via detector, which was this model's first, wrong idea."""
+    px, py = hilbert_inplane(bz, dx_m)
+    return np.hypot(bx - px, by - py)

@@ -96,3 +96,19 @@ def test_long_wire_limit():
     X, Y = np.meshgrid(np.array([0.0]), np.array([2e-6]))
     bx, by, bz = segments.segment_field((-1.0, 0, 0), (1.0, 0, 0), 1e-3, X, Y, 0.0)   # 2 m wire, 2 um away
     assert abs(bz[0, 0] - 4e-7 * np.pi * 1e-3 / (2 * np.pi * 2e-6)) / (4e-7 * np.pi * 1e-3 / (2 * np.pi * 2e-6)) < 1e-6
+
+
+def test_bz_determines_the_inplane_field_even_with_vias():
+    """Above all sources Bz fixes Bx and By (potential field): the residual of the Hilbert
+    prediction is a finite-window artifact that falls with window size, vias or not."""
+    from qdm import segments
+    u = 1e-6
+    path = [(-60*u,-4*u,-1*u),(-6*u,-4*u,-1*u),(-6*u,-4*u,-4*u),(14*u,-4*u,-4*u),(14*u,-4*u,-1*u),(60*u,-4*u,-1*u),(60*u,60*u,-1*u),(-60*u,60*u,-1*u),(-60*u,-4*u,-1*u)]
+    res = []
+    for n in (128, 256):
+        ax = (np.arange(n) - n // 2) * 0.5e-6
+        X, Y = np.meshgrid(ax, ax)
+        bx, by, bz = segments.path_field(path, 50e-6, X, Y, 0.0)
+        r = segments.hilbert_residual(bx, by, bz, 0.5e-6)
+        res.append(r[np.argmin(abs(ax + 4e-6)), np.argmin(abs(ax + 6e-6))] / np.hypot(bx, by).max())   # at the via
+    assert res[0] < 0.05 and res[1] < 0.01 and res[1] < res[0] / 3

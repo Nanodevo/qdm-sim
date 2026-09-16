@@ -38,15 +38,16 @@ for (name, pts), col in zip(nets.items(), ("C1", "C0")):
         if abs(p[2] - q[2]) > 1e-9: a.plot(p[0], p[1], "o", color="k", ms=7, mfc="w", mew=1.5)
         else: a.plot([p[0], q[0]], [p[1], q[1]], color=col, lw=4 if p[2] < -2e-6 * 1e6 else 2.5, alpha=0.9)
 a.plot([], [], color="C1", lw=2.5, label="net A: M3 (thin) and M1 (thick)"); a.plot([], [], color="C0", lw=2.5, label="net B: M3 only"); a.plot([], [], "o", color="k", mfc="w", label="via, 3 µm vertical")
-a.set(title="(a) two nets from the same pads; top view", xlim=ext[:2], ylim=ext[2:], xlabel="x (µm)", ylabel="y (µm)"); a.set_aspect("equal"); a.legend(loc="upper left", fontsize=7.5)
+a.set(title="(a) two nets between pads outside the view; top view", xlim=ext[:2], ylim=ext[2:], xlabel="x (µm)", ylabel="y (µm)"); a.set_aspect("equal"); a.legend(loc="upper left", fontsize=7.5)
 vm = np.abs(gz).max() * 1e6
 def show(a, m, title, cmap="RdBu_r", vmax=None):
     im = a.imshow(m * 1e6, extent=ext, origin="lower", cmap=cmap, vmin=-vmax if cmap == "RdBu_r" else 0, vmax=vmax); a.set_title(title, fontsize=10); a.set(xlabel="x (µm)", ylabel="y (µm)")
     fig.colorbar(im, ax=a, label="µT", fraction=0.046)
 show(ax[0, 1], gz, "(b) good chip: Bz from the four NV orientations", vmax=vm)
-show(ax[0, 2], np.hypot(gx, gy), "(c) good chip: in-plane |B|, the vias show as spots", cmap="magma", vmax=np.hypot(tx, ty).max() * 1e6)
+hx, hy = segments.hilbert_inplane(gz, dx * 1e-6); vmx = np.hypot(tx, ty).max() * 1e6
+show(ax[0, 2], np.hypot(gx, gy), "(c) good chip: in-plane |B| measured by the four orientations", cmap="magma", vmax=vmx)
 show(ax[1, 0], oz, "(d) open via: Bz, net A's current is gone", vmax=vm)
-show(ax[1, 1], np.hypot(ox, oy), "(e) open via: in-plane |B|, the via spots are gone", cmap="magma", vmax=np.hypot(tx, ty).max() * 1e6)
+show(ax[1, 1], np.hypot(hx, hy), "(e) good chip: in-plane |B| computed from Bz alone (eq. 6)", cmap="magma", vmax=vmx)
 a = ax[1, 2]
 res = {}
 for lab, (bxm, bym, bzm) in (("good", (gx, gy, gz)), ("open via", (ox, oy, oz))):
@@ -59,6 +60,6 @@ for i, (lab, truth) in enumerate((("good", GOOD), ("open via", OPEN))):
         a.bar(xs + (2 * i + j - 1.5) * w, v, w, color=f"C{j}", alpha=0.55 + 0.45 * i, label=f"{lab}, {meth}")
     a.plot(xs + (2 * i - 1) * w, np.array(truth) * 1e6, "k_", ms=22, mew=2)
 a.set(title="(f) net currents fitted to the maps (black = truth)", xticks=xs, xticklabels=["net A (via path)", "net B (M3)"], ylabel="current (µA)", ylim=(-5, 62)); a.legend(fontsize=7.5, loc="upper left")
-fig.suptitle("Vertical currents: a via's own field has no Bz; the vector map from the four orientations sees it", y=1.0)
+fig.suptitle("Vertical currents: a via shows in Bz as one trace ending and another starting; the field vector adds redundancy, not new information", y=1.0)
 fig.tight_layout(); fig.savefig(OUT / "fig8_vector.png"); print("fig8")
 for k, v in res.items(): print(k, np.round(v * 1e6, 1))
